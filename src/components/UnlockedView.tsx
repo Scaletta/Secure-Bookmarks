@@ -50,6 +50,11 @@ export default function UnlockedView({
     queueMicrotask(() => urlRef.current?.focus());
   };
 
+  const addCurrentPage = async () => {
+    await fillFromCurrentTab();
+    openAddForm();
+  };
+
   const fillFromCurrentTab = async () => {
     setFilling(true);
     try {
@@ -91,32 +96,33 @@ export default function UnlockedView({
     <div className="p-2">
       <div className="flex flex-col gap-2">
         <Card className="border-border/70 bg-card/95 shadow-2xl backdrop-blur">
-          <CardHeader className="space-y-3 pb-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary shadow-sm">
-                  <LayoutGrid className="h-5 w-5" />
+          <CardHeader className="space-y-2 p-4 pb-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary shadow-sm">
+                  <LayoutGrid className="h-4 w-4" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl">Secure Bookmarks</CardTitle>
-                  <CardDescription>{bookmarks.length} saved bookmark{bookmarks.length === 1 ? '' : 's'}</CardDescription>
+                  <CardTitle className="text-lg">Secure Bookmarks</CardTitle>
+                  <CardDescription className="text-xs">{bookmarks.length} saved bookmark{bookmarks.length === 1 ? '' : 's'}</CardDescription>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onLock} title="Lock vault">
-                <Lock className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={openOptionsPage} title="Open options">
+                  <Settings2 className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onLock} title="Lock vault">
+                  <Lock className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={openAddForm}>
+          <CardContent className="space-y-3 px-4 pb-4 pt-0">
+            <div>
+              <Button className="w-full" variant="outline" onClick={addCurrentPage} disabled={filling}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add bookmark
-              </Button>
-              <Button variant="outline" onClick={fillFromCurrentTab} disabled={filling}>
-                <Link2 className="mr-2 h-4 w-4" />
-                Current Page
+                Add bookmark for current page
               </Button>
             </div>
 
@@ -181,8 +187,8 @@ export default function UnlockedView({
 
             <Separator />
 
-            <ScrollArea className="max-h-72 pr-1">
-              <div className="space-y-3">
+            <ScrollArea className="max-h-80 pr-1">
+              <div className="space-y-2">
                 {bookmarks.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border/70 bg-secondary/30 px-4 py-8 text-center text-sm text-muted-foreground">
                     No bookmarks yet. Tap Add bookmark to create your first one.
@@ -193,7 +199,7 @@ export default function UnlockedView({
               </div>
             </ScrollArea>
 
-            <Separator />
+            {/*             <Separator />
 
             <div className="grid grid-cols-3 gap-2">
               <Button variant="outline" onClick={openOptionsPage}>
@@ -207,7 +213,7 @@ export default function UnlockedView({
               <Button variant="outline" onClick={onChangePassword}>
                 Change
               </Button>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>

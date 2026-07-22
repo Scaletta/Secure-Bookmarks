@@ -12,7 +12,7 @@ interface Props {
 
 export default function BookmarkItem({ bookmark, onDelete }: Props) {
   return (
-    <Card className="group flex items-center gap-4 border-border/70 bg-card/80 px-4 py-3 transition-shadow hover:shadow-lg">
+    <Card className="group flex items-center gap-3 border-border/70 bg-card/80 px-3 py-2 transition-shadow hover:shadow-lg">
       <a
         className="min-w-0 flex-1 space-y-1 text-left no-underline"
         href={bookmark.url}
@@ -20,10 +20,10 @@ export default function BookmarkItem({ bookmark, onDelete }: Props) {
         rel="noopener noreferrer"
       >
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium text-foreground group-hover:text-primary">{bookmark.title}</span>
+          <span className="truncate text-[13px] font-medium text-foreground group-hover:text-primary">{bookmark.title}</span>
           <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
         </div>
-        <p className="truncate text-xs text-muted-foreground">{bookmark.url}</p>
+        <p className="truncate text-[11px] text-muted-foreground">{bookmark.url}</p>
       </a>
 {/*       <Button
         variant="ghost"
