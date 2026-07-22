@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 47.4% 14%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 47.4% 14%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 346.8 77.2% 58.6%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 54.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 22%;
+    --input: 217.2 32.6% 22%;
+    --ring: 346.8 77.2% 58.6%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply bg-background;
+  }
+
+  html.popup-page {
+    background: hsl(var(--background));
+    min-height: 0;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Geist', 'Aptos', 'Segoe UI Variable', sans-serif;
+  }
+
+  body.popup-page {
+    width: 380px;
+    min-width: 380px;
+    max-width: 380px;
+    max-height: 620px;
+    overflow: hidden;
+    background: hsl(var(--background));
+  }
+
+  body.popup-page #root {
+    overflow: hidden;
+    padding: 0;
+    background: hsl(var(--background));
+    width: 100%;
+  }
+
+  body.options-page {
+    min-height: 100vh;
+    min-width: 0;
+    width: auto;
+    overflow-y: auto;
+  }
+
+  body.options-page #root {
+    min-height: 100vh;
+  }
+
+  button,
+  input,
+  select {
+    @apply outline-none;
+  }
+}

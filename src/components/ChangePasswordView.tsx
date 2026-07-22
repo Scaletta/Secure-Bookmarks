@@ -1,4 +1,9 @@
-import React, { useState, type KeyboardEvent } from 'react';
+import React, { useRef, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Props {
   onSave: (oldPw: string, newPw: string, confirmPw: string) => Promise<boolean>;
@@ -11,65 +16,81 @@ export default function ChangePasswordView({ onSave, onCancel, error, clearError
   const [oldPw, setOldPw] = useState('');
   const [newPw, setNewPw] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
-  const newRef     = React.useRef<HTMLInputElement>(null);
-  const confirmRef = React.useRef<HTMLInputElement>(null);
+  const newRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     clearError();
-    onSave(oldPw, newPw, confirmPw);
+    void onSave(oldPw, newPw, confirmPw);
   };
 
   return (
-    <div className="view">
-      <div className="view-header">
-        <h1>Change Password</h1>
-      </div>
+    <div className="p-2">
+      <Card className="w-full max-w-sm border-border/70 bg-card/95 shadow-2xl backdrop-blur">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl">Change Password</CardTitle>
+          <CardDescription>Re-encrypt your vault with a new master password.</CardDescription>
+        </CardHeader>
 
-      <div className="form-group">
-        <label>Current Password</label>
-        <input
-          type="password"
-          value={oldPw}
-          onChange={e => setOldPw(e.target.value)}
-          onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && newRef.current?.focus()}
-          placeholder="Current password"
-          autoComplete="current-password"
-          autoFocus
-        />
-      </div>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="current-password">Current Password</Label>
+            <Input
+              id="current-password"
+              type="password"
+              value={oldPw}
+              onChange={e => setOldPw(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && newRef.current?.focus()}
+              placeholder="Current password"
+              autoComplete="current-password"
+              autoFocus
+            />
+          </div>
 
-      <div className="form-group">
-        <label>New Password</label>
-        <input
-          ref={newRef}
-          type="password"
-          value={newPw}
-          onChange={e => setNewPw(e.target.value)}
-          onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && confirmRef.current?.focus()}
-          placeholder="New password"
-          autoComplete="new-password"
-        />
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="new-password">New Password</Label>
+            <Input
+              id="new-password"
+              ref={newRef}
+              type="password"
+              value={newPw}
+              onChange={e => setNewPw(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && confirmRef.current?.focus()}
+              placeholder="New password"
+              autoComplete="new-password"
+            />
+          </div>
 
-      <div className="form-group">
-        <label>Confirm New Password</label>
-        <input
-          ref={confirmRef}
-          type="password"
-          value={confirmPw}
-          onChange={e => setConfirmPw(e.target.value)}
-          onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && handleSave()}
-          placeholder="Confirm new password"
-          autoComplete="new-password"
-        />
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirm New Password</Label>
+            <Input
+              id="confirm-password"
+              ref={confirmRef}
+              type="password"
+              value={confirmPw}
+              onChange={e => setConfirmPw(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSave()}
+              placeholder="Confirm new password"
+              autoComplete="new-password"
+            />
+          </div>
 
-      {error && <div className="error">{error}</div>}
+          {error && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
 
-      <div className="button-row">
-        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
-        <button className="btn btn-primary"   onClick={handleSave}>Save</button>
-      </div>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button className="flex-1" onClick={handleSave}>
+              Save
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

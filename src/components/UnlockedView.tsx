@@ -1,4 +1,12 @@
-import React, { useState, type KeyboardEvent } from 'react';
+import React, { useRef, useState } from 'react';
+import { ChevronDown, Download, ExternalLink, LayoutGrid, Link2, Lock, Plus, Settings2, X } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import type { Bookmark } from '../types';
 import BookmarkItem from './BookmarkItem';
 
@@ -23,8 +31,9 @@ export default function UnlockedView({
 }: Props) {
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
-  const urlRef = React.useRef<HTMLInputElement>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
   const [filling, setFilling] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const handleAdd = async () => {
     clearError();
@@ -32,7 +41,13 @@ export default function UnlockedView({
     if (ok) {
       setTitle('');
       setUrl('');
+      setShowAddForm(false);
     }
+  };
+
+  const openAddForm = () => {
+    setShowAddForm(true);
+    queueMicrotask(() => urlRef.current?.focus());
   };
 
   const fillFromCurrentTab = async () => {
@@ -73,79 +88,128 @@ export default function UnlockedView({
   };
 
   return (
-    <div className="view">
-      <div className="toolbar">
-        <span className="toolbar-title">🔓 Secure Bookmarks</span>
-        <button className="btn btn-icon" onClick={onLock} title="Lock vault">
-          Lock
-        </button>
-      </div>
+    <div className="p-2">
+      <div className="flex flex-col gap-2">
+        <Card className="border-border/70 bg-card/95 shadow-2xl backdrop-blur">
+          <CardHeader className="space-y-3 pb-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary shadow-sm">
+                  <LayoutGrid className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Secure Bookmarks</CardTitle>
+                  <CardDescription>{bookmarks.length} saved bookmark{bookmarks.length === 1 ? '' : 's'}</CardDescription>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={onLock} title="Lock vault">
+                <Lock className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
 
-      <div className="add-section">
-        <div className="form-group">
-          <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && urlRef.current?.focus()}
-            placeholder="Title"
-            autoComplete="off"
-          />
-        </div>
-        <div className="form-group">
-          <input
-            ref={urlRef}
-            type="url"
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' && handleAdd()}
-            placeholder="https://example.com"
-            autoComplete="off"
-          />
-        </div>
-        {error && <div className="error">{error}</div>}
-        <div className="add-actions">
-          <button
-            className="btn btn-secondary btn-fill-page"
-            onClick={fillFromCurrentTab}
-            disabled={filling}
-            title="Pre-fill with the current tab's title and URL"
-          >
-            📋 Current Page
-          </button>
-          <button className="btn btn-primary btn-add-bookmark" onClick={handleAdd}>
-            + Add Bookmark
-          </button>
-        </div>
-      </div>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={openAddForm}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add bookmark
+              </Button>
+              <Button variant="outline" onClick={fillFromCurrentTab} disabled={filling}>
+                <Link2 className="mr-2 h-4 w-4" />
+                Current Page
+              </Button>
+            </div>
 
-      <hr className="divider" />
+            {showAddForm && (
+              <Card className="border-border/70 bg-secondary/20">
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">Add bookmark</p>
+                      <p className="text-xs text-muted-foreground">Fill this in when you want to save a new site.</p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => setShowAddForm(false)} title="Close form">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
 
-      <div className="bookmark-list">
-        {bookmarks.length === 0 ? (
-          <p className="empty-msg">No bookmarks yet. Add one above!</p>
-        ) : (
-          bookmarks.map(bm => (
-            <BookmarkItem key={bm.id} bookmark={bm} onDelete={onDelete} />
-          ))
-        )}
-      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bookmark-title">Title</Label>
+                    <Input
+                      id="bookmark-title"
+                      type="text"
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && urlRef.current?.focus()}
+                      placeholder="Title"
+                      autoComplete="off"
+                    />
+                  </div>
 
-      <div className="footer-actions">
-        <button className="btn btn-secondary btn-sm" onClick={openOptionsPage}>
-          Manage All
-        </button>
-        <button
-          className="btn btn-secondary btn-sm"
-          onClick={exportBookmarks}
-          disabled={bookmarks.length === 0}
-          title="Export bookmarks as JSON"
-        >
-          Export
-        </button>
-        <button className="btn btn-secondary btn-sm" onClick={onChangePassword}>
-          Change Password
-        </button>
+                  <div className="space-y-2">
+                    <Label htmlFor="bookmark-url">URL</Label>
+                    <Input
+                      id="bookmark-url"
+                      ref={urlRef}
+                      type="url"
+                      value={url}
+                      onChange={e => setUrl(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                      placeholder="https://example.com"
+                      autoComplete="off"
+                    />
+                  </div>
+
+                  {error && (
+                    <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button onClick={handleAdd}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowAddForm(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <Separator />
+
+            <ScrollArea className="max-h-72 pr-1">
+              <div className="space-y-3">
+                {bookmarks.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border/70 bg-secondary/30 px-4 py-8 text-center text-sm text-muted-foreground">
+                    No bookmarks yet. Tap Add bookmark to create your first one.
+                  </div>
+                ) : (
+                  bookmarks.map(bm => <BookmarkItem key={bm.id} bookmark={bm} onDelete={onDelete} />)
+                )}
+              </div>
+            </ScrollArea>
+
+            <Separator />
+
+            <div className="grid grid-cols-3 gap-2">
+              <Button variant="outline" onClick={openOptionsPage}>
+                <Settings2 className="mr-2 h-4 w-4" />
+                Manage
+              </Button>
+              <Button variant="outline" onClick={exportBookmarks} disabled={bookmarks.length === 0} title="Export bookmarks as JSON">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+              <Button variant="outline" onClick={onChangePassword}>
+                Change
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ export default function App() {
   const vault = useVault();
 
   return (
-    <div className="app">
+    <div className="text-foreground">
       {vault.view === 'setup' && (
         <SetupView
           onSetup={vault.setupVault}
