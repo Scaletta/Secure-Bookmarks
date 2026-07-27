@@ -1,0 +1,119 @@
+name: Chrome Extension CI/CD
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [main, beta]
+    tags:
+      - 'v*-beta.*'
+  pull_request:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      beta_release:
+        description: "Create a GitHub beta prerelease artifact"
+        required: true
+        type: boolean
+        default: false
+      publish:
+        description: "Publish this build to Chrome Web Store"
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build and package extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Create extension zip
+        run: |
+          cd dist
+          zip -r ../secure-bookmarks.zip .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: secure-bookmarks-extension
+          path: secure-bookmarks.zip
+          retention-days: 14
+
+  publish:
+    name: Publish to Chrome Web Store
+    needs: build
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' && inputs.publish == true)
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: secure-bookmarks-extension
+          path: .
+
+      - name: Chrome Extension upload & publish
+        uses: Passiverecords/chrome-extension-upload-action@1.4.1
+        with:
+          app-id: ${{ secrets.CHROME_APP_ID }}
+          file-name: './secure-bookmarks.zip'
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          publish: true
+
+  beta-release:
+    name: Create Beta GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'workflow_dispatch' && inputs.beta_release == true) ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/beta') ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && contains(github.ref_name, '-beta.'))
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: secure-bookmarks-extension
+          path: .
+
+      - name: Create prerelease for beta branch or manual run
+        if: github.ref_type != 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: beta-${{ github.run_number }}
+          name: Beta build ${{ github.run_number }}
+          prerelease: true
+          generate_release_notes: true
+          files: secure-bookmarks.zip
+
+      - name: Create prerelease for beta tag
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Beta ${{ github.ref_name }}
+          prerelease: true
+          generate_release_notes: true
+          files: secure-bookmarks.zip
