@@ -82,6 +82,12 @@ This generates the extension bundle in `dist/`.
 - Bookmarks are stored only inside this extension and are not added to Chrome's native bookmark bar.
 - If you forget your master password, the encrypted data cannot be recovered.
 
+## Privacy Policy
+
+The extension privacy policy is available here:
+
+- [Privacy.md](Privacy.md)
+
 ## License
 
 MIT. See [LICENSE](LICENSE) for the full text.
