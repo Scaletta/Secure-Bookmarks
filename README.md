@@ -2,6 +2,12 @@
 
 A password-protected Chrome extension for encrypted bookmark storage. Nothing is readable until you unlock the vault with your master password, and the session locks again when Chrome restarts.
 
+## Chrome Web Store
+
+The published extension is available here:
+
+- https://chromewebstore.google.com/detail/secure-bookmarks/gickogipangiidmihgcjcppehlndhgnm
+
 ## Features
 
 - **First-run setup** to create a vault with a master password
